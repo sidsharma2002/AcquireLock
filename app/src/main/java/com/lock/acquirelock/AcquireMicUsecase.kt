@@ -1,6 +1,7 @@
 package com.lock.acquirelock
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class AcquireMicUsecase(
     private val firestore: FirebaseFirestore,
@@ -13,26 +14,36 @@ class AcquireMicUsecase(
         fun error()
     }
 
+    private var snapListener: ListenerRegistration? = null
+
     fun register(listener: Listener) {
-        firestore.collection(Constants.COLLC_ROOMS)
+        snapListener = firestore.collection(Constants.COLLC_ROOMS)
             .document(roomData.roomId)
             .addSnapshotListener { value, error ->
                 if (error == null) {
 
                     val acquiredBy: String? = value?.get("lockAcquiredBy") as String?
 
+                    // acquired by me
                     if (acquiredBy?.equals(roomData.userId) == true) {
                         listener.acquired(acquiredBy)
                         isAcquiredByMe = true
-                    } else if (acquiredBy != null) {
-                        // acquired by someone else
+                    }
+
+                    // acquired by someone else
+                    else if (acquiredBy != null) {
                         isAcquiredByMe = false
                         listener.acquired(acquiredBy)
-                    } else if (acquiredBy?.equals(roomData.userId) == false && isAcquiredByMe) { // released by me
+                    }
+
+                    // released by me
+                    else if (acquiredBy?.equals(roomData.userId) == false && isAcquiredByMe) {
                         isAcquiredByMe = false
                         listener.released()
-                    } else {
-                        // release by someone else
+                    }
+
+                    // release by someone else
+                    else {
                         listener.released()
                         isAcquiredByMe = false
                     }
@@ -71,9 +82,9 @@ class AcquireMicUsecase(
 
         firestore.runTransaction {
             val snapRef = it.get(doc)
+            val lockAcquiredBy = snapRef.get("lockAcquiredBy") as String?
 
             // if lock not acquired by me then return
-            val lockAcquiredBy = snapRef.get("lockAcquiredBy") as String?
             if ((!lockAcquiredBy.isNullOrEmpty() && isAcquiredByMe) == false)
                 return@runTransaction
 
@@ -85,6 +96,10 @@ class AcquireMicUsecase(
 
         }
 
+    }
+
+    fun releaseListeners() {
+        snapListener?.remove()
     }
 
 }

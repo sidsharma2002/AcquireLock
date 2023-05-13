@@ -24,8 +24,6 @@ class RoomActivity : AppCompatActivity() {
         AcquireMicUsecase(Firebase.firestore, roomData)
     }
 
-    private var touchDownTime = 0L
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +37,30 @@ class RoomActivity : AppCompatActivity() {
 
         tvCreatorId.setText(roomData.parentId)
 
+        cvMic.setOnTouchListener { v, event ->
+
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    acquireMicUsecase.tryAcquireMic()
+                    return@setOnTouchListener true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    acquireMicUsecase.releaseAcquiredMic()
+                    return@setOnTouchListener true
+                }
+            }
+
+            return@setOnTouchListener false
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         acquireMicUsecase.register(object : AcquireMicUsecase.Listener {
 
             override fun acquired(acquiredBy: String?) {
-                // TODO vibrate
-
                 if (acquiredBy.equals(roomData.userId)) {
                     cvMic.setCardBackgroundColor(Color.GREEN)
                 } else
@@ -55,33 +72,17 @@ class RoomActivity : AppCompatActivity() {
             }
 
             override fun error() {
-
+                // TODO
             }
 
         })
+    }
 
-        cvMic.setOnTouchListener { v, event ->
-
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-
-                    acquireMicUsecase.tryAcquireMic()
-
-                    touchDownTime = System.currentTimeMillis()
-                    return@setOnTouchListener true
-                }
-
-                MotionEvent.ACTION_UP -> {
-
-                    // if (System.currentTimeMillis() - touchDownTime < 1000L) return@setOnTouchListener false // it was a sudden press and release, not a hold.
-
-                    // TODO : release mic if acquired else ignore
-                    acquireMicUsecase.releaseAcquiredMic()
-                    return@setOnTouchListener true
-                }
-            }
-
-            return@setOnTouchListener false
-        }
+    override fun onPause() {
+        // If user exits app while the mic is acquired by him, then the system will become in a buggy state.
+        // To avoid this, release in onPause itself.
+        acquireMicUsecase.releaseAcquiredMic()
+        acquireMicUsecase.releaseListeners()
+        super.onPause()
     }
 }

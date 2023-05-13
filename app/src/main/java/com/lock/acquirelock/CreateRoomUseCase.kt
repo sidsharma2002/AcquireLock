@@ -14,7 +14,7 @@ class CreateRoomUseCase(
     @WorkerThread
     fun createSync(): RoomData? {
 
-        val createdRoomData = CreatedRoomData(userId)
+        val createdRoomData = CreatedRoomData(userId, null, Date())
 
         val latch = CountDownLatch(1)
 

@@ -6,7 +6,8 @@ import java.util.Date
 
 data class CreatedRoomData(
     val creatorUserId: String = "",
-    val lockAcquiredBy: String? = null
+    val lockAcquiredBy: String? = null,
+    val date: Date? = null
 )
 
 @Parcelize
