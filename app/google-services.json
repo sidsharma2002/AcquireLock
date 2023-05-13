@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "381932419924",
+    "project_id": "acquirelock",
+    "storage_bucket": "acquirelock.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381932419924:android:a9ed0f88b8e174079366c1",
+        "android_client_info": {
+          "package_name": "com.lock.acquirelock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "381932419924-ag1i3od51df5n2ntktbbshv7lqkdeifk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJojh2k_ss4up8UGthCXU3Ud_lHqpqc-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "381932419924-ag1i3od51df5n2ntktbbshv7lqkdeifk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
